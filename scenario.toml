@@ -1,16 +1,13 @@
 [green_agent]
-agentbeats_id = ""
-env = { API_KEY = "${GITHUB_SECRET_NAME}", LOG_LEVEL = "INFO" }
+image = "osworld-green:latest"
+env = { LOG_LEVEL = "INFO" }
 
 [[participants]]
-agentbeats_id = ""
-name = "role_1_name"
-env = {}
-
-[[participants]]
-agentbeats_id = ""
-name = "role_2_name"
-env = {}
+image = "osworld-dummy-purple:latest"
+name = "agent"
+env = { LOG_LEVEL = "INFO" }
 
 [config]
 # Add your assessment config here
+domain = "os"
+example_id = "5ced85fc-fa1a-4217-95fd-0fb530545ce2"
