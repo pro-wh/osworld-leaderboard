@@ -82,6 +82,8 @@ services:
     volumes:
       - ./a2a-scenario.toml:/app/scenario.toml
       - ./output:/app/output
+    environment:
+      - PYTHONUNBUFFERED=1
     command: ["scenario.toml", "output/results.json"]
     depends_on:{client_depends}
     networks:
