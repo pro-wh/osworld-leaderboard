@@ -63,7 +63,7 @@ services:
     platform: linux/amd64
     container_name: green-agent
     command: ["--host", "0.0.0.0", "--port", "{green_port}", "--card-url", "http://green-agent:{green_port}"]
-    environment:{green_env}
+{kvm_config}    environment:{green_env}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:{green_port}/.well-known/agent-card.json"]
       interval: 5s
@@ -175,6 +175,25 @@ def format_depends_on(services: list) -> str:
     return "\n" + "\n".join(lines)
 
 
+def get_kvm_gid() -> str | None:
+    """Get the GID of /dev/kvm on the host, or None if not available."""
+    try:
+        return str(os.stat("/dev/kvm").st_gid)
+    except FileNotFoundError:
+        return None
+
+
+def format_kvm_config(kvm_gid: str | None) -> str:
+    if kvm_gid is None:
+        return ""
+    return (
+        f"    devices:\n"
+        f"      - /dev/kvm:/dev/kvm\n"
+        f"    group_add:\n"
+        f"      - \"{kvm_gid}\"\n"
+    )
+
+
 def generate_docker_compose(scenario: dict[str, Any]) -> str:
     green = scenario["green_agent"]
     participants = scenario.get("participants", [])
@@ -193,13 +212,18 @@ def generate_docker_compose(scenario: dict[str, Any]) -> str:
 
     all_services = ["green-agent"] + participant_names
 
+    kvm_gid = get_kvm_gid()
+    if kvm_gid is None:
+        print("Warning: /dev/kvm not found on host, skipping KVM device mount")
+
     return COMPOSE_TEMPLATE.format(
         green_image=green["image"],
         green_port=DEFAULT_PORT,
         green_env=format_env_vars(green.get("env", {})),
         green_depends=format_depends_on(participant_names),
         participant_services=participant_services,
-        client_depends=format_depends_on(all_services)
+        client_depends=format_depends_on(all_services),
+        kvm_config=format_kvm_config(kvm_gid)
     )
 
 
