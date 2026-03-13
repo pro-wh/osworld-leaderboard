@@ -37,7 +37,7 @@ jobs:
         run: python patch_shard.py --shard-index ${{ matrix.shard_index }} --num-shards ${{ env.NUM_SHARDS }}
 
       - name: Generate docker-compose.yml
-        run: python generate_compose.py --scenario scenario.toml
+        run: GITHUB_ACTIONS= python generate_compose.py --scenario scenario.toml
 
       - name: Pull images
         run: |
