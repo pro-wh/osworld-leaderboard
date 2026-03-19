@@ -1,0 +1,54 @@
+{
+  "participants": {},
+  "results": [
+    {
+      "overall": {
+        "sum": 16.400346296016995,
+        "count": 361
+      },
+      "success_rate": 0.045430322149631566,
+      "per_domain": {
+        "chrome": {
+          "sum": 1.0,
+          "count": 46
+        },
+        "gimp": {
+          "sum": 2.0,
+          "count": 26
+        },
+        "libreoffice_calc": {
+          "sum": 0.0,
+          "count": 47
+        },
+        "libreoffice_impress": {
+          "sum": 0.0,
+          "count": 47
+        },
+        "libreoffice_writer": {
+          "sum": 1.0,
+          "count": 23
+        },
+        "multi_apps": {
+          "sum": 5.819258807254474,
+          "count": 93
+        },
+        "os": {
+          "sum": 5.0,
+          "count": 24
+        },
+        "thunderbird": {
+          "sum": 1.0,
+          "count": 15
+        },
+        "vlc": {
+          "sum": 0.5810874887625191,
+          "count": 17
+        },
+        "vs_code": {
+          "sum": 0.0,
+          "count": 23
+        }
+      }
+    }
+  ]
+}
