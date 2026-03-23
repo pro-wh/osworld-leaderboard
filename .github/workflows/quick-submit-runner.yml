@@ -14,18 +14,11 @@ jobs:
   run:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: read
 
     strategy:
       matrix:
         shard_index: [0, 1, 2, 3]  # must have range 0, ..., NUM_SHARDS - 1
-
-    env:
-      AGENTBEATS_URL: ${{ vars.QUICK_SUBMIT_BACKEND_URL || 'https://agentbeats.dev' }}
-      OIDC_AUDIENCE: ${{ vars.QUICK_SUBMIT_OIDC_AUDIENCE || 'agentbeats-quick-submit-production' }}
-      GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER || 'projects/352582078246/locations/global/workloadIdentityPools/agentbeats-dev/providers/github' }}
-      GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT || 'agentbeats-dev-quick-submit@komyo-agentbeats.iam.gserviceaccount.com' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -60,119 +53,6 @@ jobs:
           base=$(basename "$scenario" .json)
           echo "path=$scenario" >> "$GITHUB_OUTPUT"
           echo "base=$base" >> "$GITHUB_OUTPUT"
-
-      - name: Fetch GitHub OIDC token
-        id: oidc
-        shell: bash
-        run: |
-          set -euo pipefail
-          oidc_response="$(curl -fsS \
-            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${OIDC_AUDIENCE}")"
-          oidc_token="$(jq -r '.value' <<<"$oidc_response")"
-          if [[ -z "$oidc_token" || "$oidc_token" == "null" ]]; then
-            echo "Failed to fetch OIDC token" >&2; exit 1
-          fi
-          echo "::add-mask::$oidc_token"
-          echo "token=$oidc_token" >> "$GITHUB_OUTPUT"
-
-      - name: Fetch secrets bundle
-        id: bundle
-        shell: bash
-        env:
-          BACKEND_URL: ${{ env.AGENTBEATS_URL }}
-          SUBMISSION_ID: ${{ steps.submission.outputs.submission_id }}
-          OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
-        run: |
-          set -euo pipefail
-          secrets_url="${BACKEND_URL}/api/quick-submit/${SUBMISSION_ID}/secrets"
-          http_code="$(curl -sS -o secrets_response.json -w "%{http_code}" \
-            -H "Authorization: Bearer ${OIDC_TOKEN}" "$secrets_url" || true)"
-          if [[ "$http_code" != "200" ]]; then
-            echo "Backend returned HTTP ${http_code}:" >&2
-            cat secrets_response.json >&2; exit 1
-          fi
-          echo "secrets_blob_b64=$(jq -r '.secrets_blob' secrets_response.json)" >> "$GITHUB_OUTPUT"
-          echo "wrapped_dek_b64=$(jq -r '.wrapped_dek' secrets_response.json)" >> "$GITHUB_OUTPUT"
-          echo "iv_b64=$(jq -r '.metadata.iv' secrets_response.json)" >> "$GITHUB_OUTPUT"
-          echo "key_id=$(jq -r '.metadata.key_id' secrets_response.json)" >> "$GITHUB_OUTPUT"
-
-      - name: Authenticate to GCP
-        id: gcp-auth
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
-          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
-          token_format: access_token
-
-      - name: Unwrap DEK via KMS
-        id: dek
-        shell: bash
-        env:
-          GCP_ACCESS_TOKEN: ${{ steps.gcp-auth.outputs.access_token }}
-          KMS_KEY_ID: ${{ steps.bundle.outputs.key_id }}
-          WRAPPED_DEK_B64: ${{ steps.bundle.outputs.wrapped_dek_b64 }}
-        run: |
-          set -euo pipefail
-          kms_url="https://cloudkms.googleapis.com/v1/${KMS_KEY_ID}:asymmetricDecrypt"
-          http_code="$(curl -sS -o kms_response.json -w "%{http_code}" \
-            -H "Authorization: Bearer ${GCP_ACCESS_TOKEN}" \
-            -H 'Content-Type: application/json' \
-            -d "{\"ciphertext\":\"${WRAPPED_DEK_B64}\"}" "$kms_url" || true)"
-          if [[ "$http_code" != "200" ]]; then
-            echo "KMS returned HTTP ${http_code}:" >&2
-            cat kms_response.json >&2; exit 1
-          fi
-          dek_b64="$(jq -r '.plaintext' kms_response.json)"
-          echo "::add-mask::$dek_b64"
-          echo "dek_b64=$dek_b64" >> "$GITHUB_OUTPUT"
-
-      - name: Decrypt and export secrets
-        shell: bash
-        env:
-          DEK_B64: ${{ steps.dek.outputs.dek_b64 }}
-          IV_B64: ${{ steps.bundle.outputs.iv_b64 }}
-          CIPHERTEXT_B64: ${{ steps.bundle.outputs.secrets_blob_b64 }}
-        run: |
-          set -euo pipefail
-          node - <<'NODE'
-          const crypto = require('crypto');
-
-          const dek = Buffer.from(process.env.DEK_B64, 'base64');
-          const iv = Buffer.from(process.env.IV_B64, 'base64');
-          const ciphertextAndTag = Buffer.from(process.env.CIPHERTEXT_B64, 'base64');
-
-          const tag = ciphertextAndTag.subarray(ciphertextAndTag.length - 16);
-          const ciphertext = ciphertextAndTag.subarray(0, ciphertextAndTag.length - 16);
-
-          const decipher = crypto.createDecipheriv('aes-256-gcm', dek, iv);
-          decipher.setAuthTag(tag);
-          const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-
-          const secrets = JSON.parse(plaintext.toString('utf8'));
-
-          // Export all secrets as env vars with AMBER_CONFIG_ prefix (green + participant secrets)
-          const fs = require('fs');
-          const envFile = process.env.GITHUB_ENV;
-
-          function exportSecret(key, value) {
-            console.log(`::add-mask::${value}`);
-            fs.appendFileSync(envFile, `AMBER_CONFIG_${key}=${value}\n`);
-          }
-
-          for (const [key, value] of Object.entries(secrets.green || {})) {
-            exportSecret(`GREEN_${key}`, value);
-          }
-          for (const participant of secrets.participants || []) {
-            const prefix = participant.name.toUpperCase();
-            for (const [key, value] of Object.entries(participant.secrets || {})) {
-              exportSecret(`${prefix}_${key}`, value);
-            }
-          }
-
-          console.log(`Exported ${Object.keys(secrets.green || {}).length} green secrets`);
-          console.log(`Exported secrets for ${(secrets.participants || []).length} participants`);
-          NODE
 
       - name: Patch scenario with shard config
         shell: bash
@@ -288,12 +168,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: run
     permissions:
-      id-token: write
       contents: write
-
-    env:
-      AGENTBEATS_URL: ${{ vars.QUICK_SUBMIT_BACKEND_URL || 'https://agentbeats.dev' }}
-      OIDC_AUDIENCE: ${{ vars.QUICK_SUBMIT_OIDC_AUDIENCE || 'agentbeats-quick-submit-production' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -328,21 +203,6 @@ jobs:
           base=$(basename "$scenario" .json)
           echo "path=$scenario" >> "$GITHUB_OUTPUT"
           echo "base=$base" >> "$GITHUB_OUTPUT"
-
-      - name: Fetch GitHub OIDC token
-        id: oidc
-        shell: bash
-        run: |
-          set -euo pipefail
-          oidc_response="$(curl -fsS \
-            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${OIDC_AUDIENCE}")"
-          oidc_token="$(jq -r '.value' <<<"$oidc_response")"
-          if [[ -z "$oidc_token" || "$oidc_token" == "null" ]]; then
-            echo "Failed to fetch OIDC token" >&2; exit 1
-          fi
-          echo "::add-mask::$oidc_token"
-          echo "token=$oidc_token" >> "$GITHUB_OUTPUT"
 
       - name: Download shard results
         uses: actions/download-artifact@v4
@@ -433,21 +293,3 @@ jobs:
           git add "results/${BASE}.json" "submissions/${BASE}-provenance.json"
           git commit -m "[AgentBeats] Scenario results"
           git push
-
-      - name: Delete secrets from backend
-        if: success()
-        shell: bash
-        env:
-          BACKEND_URL: ${{ env.AGENTBEATS_URL }}
-          SUBMISSION_ID: ${{ steps.submission.outputs.submission_id }}
-          OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
-        run: |
-          set -euo pipefail
-          http_code="$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
-            -H "Authorization: Bearer ${OIDC_TOKEN}" \
-            "${BACKEND_URL}/api/quick-submit/${SUBMISSION_ID}/complete" || true)"
-          if [[ "$http_code" == "200" ]]; then
-            echo "Secrets deleted successfully"
-          else
-            echo "Warning: secrets cleanup returned HTTP ${http_code} (non-fatal)" >&2
-          fi

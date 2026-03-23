@@ -16,5 +16,4 @@ jobs:
     if: startsWith(github.head_ref, 'quick-submit-')
     uses: RDI-Foundation/osworld-leaderboard/.github/workflows/quick-submit-runner.yml@main
     permissions:
-      id-token: write
       contents: write
