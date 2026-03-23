@@ -6,39 +6,6 @@ import os
 import sys
 
 
-def collect_github_actions_metadata() -> dict | None:
-    """Collect GitHub Actions run metadata when available."""
-    if not os.environ.get("GITHUB_ACTIONS"):
-        return None
-
-    env = os.environ
-    repository = env.get("GITHUB_REPOSITORY")
-    server_url = env.get("GITHUB_SERVER_URL")
-    api_url = env.get("GITHUB_API_URL")
-    run_id = env.get("GITHUB_RUN_ID")
-    run_url = None
-    repository_url = None
-    if repository and server_url and run_id:
-        run_url = f"{server_url}/{repository}/actions/runs/{run_id}"
-    if repository and server_url:
-        repository_url = f"{server_url}/{repository}"
-    run_logs_url = None
-    if repository and api_url and run_id:
-        run_logs_url = f"{api_url}/repos/{repository}/actions/runs/{run_id}/logs"
-
-    metadata = {
-        "run_url": run_url,
-        "run_logs_url": run_logs_url,
-        "ref": env.get("GITHUB_REF"),
-        "sha": env.get("GITHUB_SHA"),
-        "repository_url": repository_url,
-        "workflow_ref": env.get("GITHUB_WORKFLOW_REF"),
-        "workflow_sha": env.get("GITHUB_WORKFLOW_SHA"),
-    }
-
-    return {key: value for key, value in metadata.items() if value}
-
-
 def main():
     parser = argparse.ArgumentParser(description="Aggregate shard results and provenance into single output files")
     parser.add_argument("--num-shards", type=int, required=True)
@@ -51,8 +18,9 @@ def main():
     per_domain: dict = {}
     participants = None
 
-    local_github_actions = collect_github_actions_metadata()
     image_digests = None
+    _unset = object()
+    github_actions = _unset
     shard_timestamps = []
     expected_dirs = [f"shard-{i}" for i in range(args.num_shards)]
     actual_dirs = os.listdir(args.shard_results_dir)
@@ -101,11 +69,12 @@ def main():
             print(f"  Got:      {prov.get('image_digests')}")
             sys.exit(1)
 
-        shard_github_actions = prov.get("github_actions")
-        if shard_github_actions != local_github_actions:
+        if github_actions is _unset:
+            github_actions = prov.get("github_actions")
+        elif prov.get("github_actions") != github_actions:
             print(f"Error: github_actions mismatch in {shard_dir}")
-            print(f"  Expected: {local_github_actions}")
-            print(f"  Got:      {shard_github_actions}")
+            print(f"  Expected: {github_actions}")
+            print(f"  Got:      {prov.get('github_actions')}")
             sys.exit(1)
 
     success_rate = overall_sum / overall_count if overall_count else 0.0
@@ -127,8 +96,8 @@ def main():
         "image_digests": image_digests,
         "shard_timestamps": shard_timestamps,
     }
-    if local_github_actions:
-        provenance["github_actions"] = local_github_actions
+    if github_actions and github_actions is not _unset:
+        provenance["github_actions"] = github_actions
     with open(os.path.join(args.output_dir, "provenance.json"), "w") as f:
         json.dump(provenance, f, indent=2)
     print(f"Recorded provenance ({args.num_shards} shards)")
