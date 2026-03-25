@@ -10,7 +10,16 @@ env:
   NUM_SHARDS: 4
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      shard_indices: ${{ steps.gen.outputs.shard_indices }}
+    steps:
+      - id: gen
+        run: echo "shard_indices=$(seq 0 $(( ${{ env.NUM_SHARDS }} - 1 )) | jq -sc .)" >> "$GITHUB_OUTPUT"
+
   run:
+    needs: setup
     runs-on: ubuntu-latest
     if: github.event.repository.fork == true || github.ref != 'refs/heads/main'
     permissions:
@@ -19,7 +28,7 @@ jobs:
 
     strategy:
       matrix:
-        shard_index: [0, 1, 2, 3]  # must have range 0, ..., NUM_SHARDS - 1
+        shard_index: ${{ fromJson(needs.setup.outputs.shard_indices) }}
 
     steps:
       - name: Checkout

@@ -11,23 +11,36 @@ on:
         description: Agentbeats backend base URL for this quick-submit run
         required: false
         type: string
+      num_shards:
+        description: Number of parallel shards to run (default 1)
+        required: false
+        type: number
     secrets:
       GREEN_SECRETS_JSON:
         description: Optional JSON object mapping green config key -> secret value.
         required: false
 
 env:
-  NUM_SHARDS: 4
+  NUM_SHARDS: ${{ inputs.num_shards || 1 }}
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      shard_indices: ${{ steps.gen.outputs.shard_indices }}
+    steps:
+      - id: gen
+        run: echo "shard_indices=$(seq 0 $(( ${{ inputs.num_shards || 1 }} - 1 )) | jq -sc .)" >> "$GITHUB_OUTPUT"
+
   run:
+    needs: setup
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
     strategy:
       matrix:
-        shard_index: [0, 1, 2, 3]  # must have range 0, ..., NUM_SHARDS - 1
+        shard_index: ${{ fromJson(needs.setup.outputs.shard_indices) }}
 
     env:
       RESULTS_TIMEOUT_MINUTES: ${{ vars.QUICK_SUBMIT_TIMEOUT_MINUTES || '30' }}
