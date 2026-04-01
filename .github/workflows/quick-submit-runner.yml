@@ -198,6 +198,12 @@ jobs:
           else
             echo "Scenario does not use framework.docker"
           fi
+          if jq -e '.. | objects | select(.kind? == "kvm")' scenario-ir.json > /dev/null; then
+            echo "Scenario uses framework.kvm; exporting AMBER_KVM_GID to Docker Compose"
+            echo "AMBER_KVM_GID=$(stat -c %g /dev/kvm)" >> "${GITHUB_ENV}"
+          else
+            echo "Scenario does not use framework.kvm"
+          fi
 
       - name: Run scenario
         shell: bash
