@@ -1,9 +1,9 @@
 [green_agent]
-image = "ghcr.io/rdi-foundation/osworld-green:latest"
+agentbeats_id = "019d1c38-8835-7f40-8d2d-43ac8c66b2ff"
 env = {}
 
 [[participants]]
-image = "ghcr.io/rdi-foundation/osworld-purple:latest"
+agentbeats_id = "019d1c3e-edbe-7ea2-8970-ed047e6c6dea"
 name = "agent"
 
 [participants.env]
