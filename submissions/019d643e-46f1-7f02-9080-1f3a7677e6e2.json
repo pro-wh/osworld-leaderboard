@@ -1,0 +1,131 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_a11y_tree_max_tokens": {
+        "type": "integer"
+      },
+      "agent_anthropic_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_azure_openai_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_azure_openai_endpoint": {
+        "type": "string"
+      },
+      "agent_genai_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_groq_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_max_contexts": {
+        "type": "integer",
+        "default": 5
+      },
+      "agent_max_tokens": {
+        "type": "integer"
+      },
+      "agent_max_trajectory_length": {
+        "type": "integer"
+      },
+      "agent_model": {
+        "type": "string"
+      },
+      "agent_openai_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_openai_base_url": {
+        "type": "string"
+      },
+      "agent_temperature": {
+        "type": "number"
+      },
+      "agent_together_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_top_p": {
+        "type": "number"
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {},
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://github.com/RDI-Foundation/osworld-green/raw/refs/heads/main/amber-manifest.json5",
+      "config": {}
+    },
+    "agent": {
+      "manifest": "https://github.com/RDI-Foundation/osworld-purple/raw/refs/heads/main/amber-manifest.json5",
+      "config": {
+        "a11y_tree_max_tokens": "${config.agent_a11y_tree_max_tokens}",
+        "anthropic_api_key": "${config.agent_anthropic_api_key}",
+        "azure_openai_api_key": "${config.agent_azure_openai_api_key}",
+        "azure_openai_endpoint": "${config.agent_azure_openai_endpoint}",
+        "genai_api_key": "${config.agent_genai_api_key}",
+        "groq_api_key": "${config.agent_groq_api_key}",
+        "max_contexts": "${config.agent_max_contexts}",
+        "max_tokens": "${config.agent_max_tokens}",
+        "max_trajectory_length": "${config.agent_max_trajectory_length}",
+        "model": "${config.agent_model}",
+        "openai_api_key": "${config.agent_openai_api_key}",
+        "openai_base_url": "${config.agent_openai_base_url}",
+        "temperature": "${config.agent_temperature}",
+        "together_api_key": "${config.agent_together_api_key}",
+        "top_p": "${config.agent_top_p}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    },
+    {
+      "to": "#agent.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+      "agent": "019d1c3e-edbe-7ea2-8970-ed047e6c6dea"
+    }
+  },
+  "experimental_features": [
+    "kvm"
+  ]
+}
