@@ -1,0 +1,22 @@
+{
+  "image_digests": {
+    "/agent": "tenalirama2026/agentx-osworld@sha256:7e714664c1fa9d7fc04903ee709559153d3f8f45b0e9b8e92c2176f1c811664f",
+    "/gateway": "ghcr.io/rdi-foundation/agentbeats-gateway@sha256:3f9976889c598092dc4273312ec431cbc48bbe064ff65b5613425f4990bc1d4c",
+    "/green": "ghcr.io/rdi-foundation/osworld-green@sha256:96ff689e921266c5a786ace5d2624556a00c47583f5fb74af15c75b302a56f3e"
+  },
+  "manifest_digests": {
+    "/": "sha256:roZ26srTxvyOGLJvOMfo4oQygWG6tBnimaPEa0+ljzM=",
+    "/agent": "sha256:BF4tYGaJeORI7xyIzRxt3XkLvt+CLk2D7ajJU5+EwlE=",
+    "/gateway": "sha256:55vdRwO+54k8WBZhh3nrN6Gn7cnk/+hm1dG+xt/GYSE=",
+    "/green": "sha256:F+ubAvDQp6XlA/1gfPllhs7uRZ7hmKR8nh7Y/7Z4fLU="
+  },
+  "timestamp": "2026-04-11T20:08:22Z",
+  "github_actions": {
+    "run_url": "https://github.com/RDI-Foundation/osworld-leaderboard/actions/runs/24290460675",
+    "ref": "refs/pull/14/merge",
+    "sha": "ca75f1513ee3f962383153ef1036f264e6c1adcb",
+    "repository_url": "https://github.com/RDI-Foundation/osworld-leaderboard",
+    "workflow_ref": "RDI-Foundation/osworld-leaderboard/.github/workflows/quick-submit.yml@refs/pull/14/merge",
+    "workflow_sha": "ca75f1513ee3f962383153ef1036f264e6c1adcb"
+  }
+}
