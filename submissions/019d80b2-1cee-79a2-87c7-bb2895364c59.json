@@ -1,0 +1,79 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_nebius_api_key": {
+        "type": "string",
+        "secret": true
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "action_space": "pyautogui",
+          "observation_type": "screenshot",
+          "sleep_after_execution": 0,
+          "max_steps": 15,
+          "test_all_meta_name": "test_nogdrive",
+          "domain": null,
+          "num_shards": 1,
+          "shard_index": 0,
+          "num_workers": 3
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://github.com/RDI-Foundation/osworld-green/raw/refs/heads/main/amber-manifest.json5",
+      "config": {}
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/tenalirama2005/agentx-osworld/main/amber-manifest.json5",
+      "config": {
+        "nebius_api_key": "${config.agent_nebius_api_key}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    },
+    {
+      "to": "#agent.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+      "agent": "019d7dc6-d6d6-7c32-8b6f-9c8254b13a30"
+    }
+  },
+  "experimental_features": [
+    "kvm"
+  ]
+}

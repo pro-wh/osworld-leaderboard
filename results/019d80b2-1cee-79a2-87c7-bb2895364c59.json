@@ -1,0 +1,201 @@
+{
+  "status": "completed",
+  "participants": {
+    "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+    "agent": "019d7dc6-d6d6-7c32-8b6f-9c8254b13a30"
+  },
+  "results": [
+    {
+      "overall": {
+        "sum": 0.0,
+        "count": 91
+      },
+      "per_domain": {
+        "chrome": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "gimp": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "libreoffice_calc": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "libreoffice_impress": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "libreoffice_writer": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "multi_apps": {
+          "sum": 0.0,
+          "count": 23
+        },
+        "os": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "thunderbird": {
+          "sum": 0.0,
+          "count": 4
+        },
+        "vlc": {
+          "sum": 0.0,
+          "count": 4
+        },
+        "vs_code": {
+          "sum": 0.0,
+          "count": 6
+        }
+      }
+    },
+    {
+      "overall": {
+        "sum": 0.0,
+        "count": 90
+      },
+      "per_domain": {
+        "chrome": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "gimp": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "libreoffice_calc": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "libreoffice_impress": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "libreoffice_writer": {
+          "sum": 0.0,
+          "count": 5
+        },
+        "multi_apps": {
+          "sum": 0.0,
+          "count": 24
+        },
+        "os": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "thunderbird": {
+          "sum": 0.0,
+          "count": 3
+        },
+        "vlc": {
+          "sum": 0.0,
+          "count": 5
+        },
+        "vs_code": {
+          "sum": 0.0,
+          "count": 5
+        }
+      }
+    },
+    {
+      "overall": {
+        "sum": 0.0,
+        "count": 90
+      },
+      "per_domain": {
+        "chrome": {
+          "sum": 0.0,
+          "count": 11
+        },
+        "gimp": {
+          "sum": 0.0,
+          "count": 7
+        },
+        "libreoffice_calc": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "libreoffice_impress": {
+          "sum": 0.0,
+          "count": 11
+        },
+        "libreoffice_writer": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "multi_apps": {
+          "sum": 0.0,
+          "count": 23
+        },
+        "os": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "thunderbird": {
+          "sum": 0.0,
+          "count": 4
+        },
+        "vlc": {
+          "sum": 0.0,
+          "count": 4
+        },
+        "vs_code": {
+          "sum": 0.0,
+          "count": 6
+        }
+      }
+    },
+    {
+      "overall": {
+        "sum": 0.0,
+        "count": 90
+      },
+      "per_domain": {
+        "chrome": {
+          "sum": 0.0,
+          "count": 11
+        },
+        "gimp": {
+          "sum": 0.0,
+          "count": 7
+        },
+        "libreoffice_calc": {
+          "sum": 0.0,
+          "count": 11
+        },
+        "libreoffice_impress": {
+          "sum": 0.0,
+          "count": 12
+        },
+        "libreoffice_writer": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "multi_apps": {
+          "sum": 0.0,
+          "count": 23
+        },
+        "os": {
+          "sum": 0.0,
+          "count": 6
+        },
+        "thunderbird": {
+          "sum": 0.0,
+          "count": 4
+        },
+        "vlc": {
+          "sum": 0.0,
+          "count": 4
+        },
+        "vs_code": {
+          "sum": 0.0,
+          "count": 6
+        }
+      }
+    }
+  ]
+}
