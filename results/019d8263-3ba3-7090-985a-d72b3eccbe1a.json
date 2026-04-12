@@ -1,0 +1,57 @@
+{
+  "status": "completed",
+  "participants": {
+    "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+    "agent": "019d81e7-3633-72c0-8fcc-b49f425f6521"
+  },
+  "results": [
+    {
+      "overall": {
+        "sum": 3.0,
+        "count": 6
+      },
+      "per_domain": {
+        "os": {
+          "sum": 3.0,
+          "count": 6
+        }
+      }
+    },
+    {
+      "overall": {
+        "sum": 3.0,
+        "count": 6
+      },
+      "per_domain": {
+        "os": {
+          "sum": 3.0,
+          "count": 6
+        }
+      }
+    },
+    {
+      "overall": {
+        "sum": 4.0,
+        "count": 6
+      },
+      "per_domain": {
+        "os": {
+          "sum": 4.0,
+          "count": 6
+        }
+      }
+    },
+    {
+      "overall": {
+        "sum": 2.0,
+        "count": 6
+      },
+      "per_domain": {
+        "os": {
+          "sum": 2.0,
+          "count": 6
+        }
+      }
+    }
+  ]
+}
