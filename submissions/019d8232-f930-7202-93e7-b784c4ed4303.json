@@ -1,0 +1,126 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_ENTOUCH__GROUNDING_MODEL": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__GROUNDING__PROVIDER__1__API_KEY": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_ENTOUCH__GROUNDING__PROVIDER__1__BASE_URL": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__MAX_HISTORY_SCREENSHOTS": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__MAX_HISTORY_TURNS": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__MAX_TOKENS": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__MODEL": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__PROVIDER__1__API_KEY": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_ENTOUCH__PROVIDER__1__BASE_URL": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__TEMPERATURE": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__TRACING": {
+        "type": "string"
+      },
+      "agent_ENTOUCH__VISION_REASONING": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "agent_ENTOUCH__MODEL",
+      "agent_ENTOUCH__PROVIDER__1__BASE_URL",
+      "agent_ENTOUCH__PROVIDER__1__API_KEY",
+      "agent_ENTOUCH__GROUNDING_MODEL",
+      "agent_ENTOUCH__GROUNDING__PROVIDER__1__BASE_URL",
+      "agent_ENTOUCH__GROUNDING__PROVIDER__1__API_KEY"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "action_space": "pyautogui",
+          "observation_type": "screenshot",
+          "sleep_after_execution": 0,
+          "max_steps": 15,
+          "test_all_meta_name": "test_tiny",
+          "domain": null,
+          "num_shards": 1,
+          "shard_index": 0,
+          "num_workers": 3
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://github.com/RDI-Foundation/osworld-green/raw/refs/heads/main/amber-manifest.json5",
+      "config": {}
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/ftelnov/entouch/refs/heads/master/amber-manifest.json5",
+      "config": {
+        "ENTOUCH__GROUNDING_MODEL": "${config.agent_ENTOUCH__GROUNDING_MODEL}",
+        "ENTOUCH__GROUNDING__PROVIDER__1__API_KEY": "${config.agent_ENTOUCH__GROUNDING__PROVIDER__1__API_KEY}",
+        "ENTOUCH__GROUNDING__PROVIDER__1__BASE_URL": "${config.agent_ENTOUCH__GROUNDING__PROVIDER__1__BASE_URL}",
+        "ENTOUCH__MAX_HISTORY_SCREENSHOTS": "${config.agent_ENTOUCH__MAX_HISTORY_SCREENSHOTS}",
+        "ENTOUCH__MAX_HISTORY_TURNS": "${config.agent_ENTOUCH__MAX_HISTORY_TURNS}",
+        "ENTOUCH__MAX_TOKENS": "${config.agent_ENTOUCH__MAX_TOKENS}",
+        "ENTOUCH__MODEL": "${config.agent_ENTOUCH__MODEL}",
+        "ENTOUCH__PROVIDER__1__API_KEY": "${config.agent_ENTOUCH__PROVIDER__1__API_KEY}",
+        "ENTOUCH__PROVIDER__1__BASE_URL": "${config.agent_ENTOUCH__PROVIDER__1__BASE_URL}",
+        "ENTOUCH__TEMPERATURE": "${config.agent_ENTOUCH__TEMPERATURE}",
+        "ENTOUCH__TRACING": "${config.agent_ENTOUCH__TRACING}",
+        "ENTOUCH__VISION_REASONING": "${config.agent_ENTOUCH__VISION_REASONING}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+      "agent": "019d81e7-3633-72c0-8fcc-b49f425f6521"
+    }
+  },
+  "experimental_features": [
+    "kvm"
+  ]
+}
