@@ -1,0 +1,120 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_a11y_tree_max_tokens": {
+        "type": "integer"
+      },
+      "agent_executor_model": {
+        "type": "string"
+      },
+      "agent_max_tokens": {
+        "type": "integer"
+      },
+      "agent_max_trajectory_length": {
+        "type": "integer"
+      },
+      "agent_openai_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_openai_base_url": {
+        "type": "string"
+      },
+      "agent_planner_model": {
+        "type": "string"
+      },
+      "agent_planner_review_interval": {
+        "type": "integer"
+      },
+      "agent_qwen_api_backend": {
+        "type": "string"
+      },
+      "agent_qwen_enable_thinking": {
+        "type": "boolean"
+      },
+      "agent_qwen_thinking_budget": {
+        "type": "integer"
+      },
+      "agent_temperature": {
+        "type": "number"
+      },
+      "agent_top_p": {
+        "type": "number"
+      },
+      "agent_trajectory_summary_window": {
+        "type": "integer"
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "action_space": "pyautogui",
+          "observation_type": "screenshot",
+          "max_steps": 15
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://github.com/RDI-Foundation/osworld-green/raw/refs/heads/main/amber-manifest.json5",
+      "config": {}
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/favead/osworld-impl/refs/heads/main/amber-manifest.json5",
+      "config": {
+        "a11y_tree_max_tokens": "${config.agent_a11y_tree_max_tokens}",
+        "executor_model": "${config.agent_executor_model}",
+        "max_tokens": "${config.agent_max_tokens}",
+        "max_trajectory_length": "${config.agent_max_trajectory_length}",
+        "openai_api_key": "${config.agent_openai_api_key}",
+        "openai_base_url": "${config.agent_openai_base_url}",
+        "planner_model": "${config.agent_planner_model}",
+        "planner_review_interval": "${config.agent_planner_review_interval}",
+        "qwen_api_backend": "${config.agent_qwen_api_backend}",
+        "qwen_enable_thinking": "${config.agent_qwen_enable_thinking}",
+        "qwen_thinking_budget": "${config.agent_qwen_thinking_budget}",
+        "temperature": "${config.agent_temperature}",
+        "top_p": "${config.agent_top_p}",
+        "trajectory_summary_window": "${config.agent_trajectory_summary_window}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+      "agent": "019d8231-e494-7880-af88-c1e98abc902b"
+    }
+  },
+  "experimental_features": [
+    "kvm"
+  ]
+}
