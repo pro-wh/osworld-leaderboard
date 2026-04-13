@@ -1,0 +1,165 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_a11y_tree_max_tokens": {
+        "type": "integer",
+        "default": 10000
+      },
+      "agent_agent_context_ttl_seconds": {
+        "type": "integer",
+        "default": 3600
+      },
+      "agent_executor_model": {
+        "type": "string",
+        "default": "qwen/qwen3.5-plus-02-15"
+      },
+      "agent_max_agent_contexts": {
+        "type": "integer",
+        "default": 200
+      },
+      "agent_max_tokens": {
+        "type": "integer",
+        "default": 1500
+      },
+      "agent_max_trajectory_length": {
+        "type": "integer",
+        "default": 12
+      },
+      "agent_model_max_retries": {
+        "type": "integer",
+        "default": 1
+      },
+      "agent_model_retry_backoff_seconds": {
+        "type": "number",
+        "default": 1.5
+      },
+      "agent_model_timeout_seconds": {
+        "type": "number",
+        "default": 120
+      },
+      "agent_openai_api_key": {
+        "type": "string"
+      },
+      "agent_openai_base_url": {
+        "type": "string",
+        "default": "https://openrouter.ai/api/v1"
+      },
+      "agent_planner_model": {
+        "type": "string",
+        "default": "google/gemini-3.1-flash-lite-preview"
+      },
+      "agent_planner_review_interval": {
+        "type": "integer",
+        "default": 12
+      },
+      "agent_qwen_api_backend": {
+        "type": "string",
+        "default": "openai"
+      },
+      "agent_qwen_enable_thinking": {
+        "type": "boolean",
+        "default": false
+      },
+      "agent_qwen_thinking_budget": {
+        "type": "integer",
+        "default": 0
+      },
+      "agent_temperature": {
+        "type": "number",
+        "default": 0.1
+      },
+      "agent_top_p": {
+        "type": "number",
+        "default": 0.9
+      },
+      "agent_trajectory_summary_window": {
+        "type": "integer",
+        "default": 8
+      }
+    },
+    "required": [
+      "agent_openai_api_key"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "action_space": "pyautogui",
+          "observation_type": "screenshot",
+          "sleep_after_execution": 0,
+          "max_steps": 15,
+          "test_all_meta_name": "test_nogdrive",
+          "domain": null,
+          "num_shards": 1,
+          "shard_index": 0,
+          "num_workers": 3
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://github.com/RDI-Foundation/osworld-green/raw/refs/heads/main/amber-manifest.json5",
+      "config": {}
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/favead/osworld-impl/refs/heads/main/amber-manifest.json5",
+      "config": {
+        "a11y_tree_max_tokens": "${config.agent_a11y_tree_max_tokens}",
+        "agent_context_ttl_seconds": "${config.agent_agent_context_ttl_seconds}",
+        "executor_model": "${config.agent_executor_model}",
+        "max_agent_contexts": "${config.agent_max_agent_contexts}",
+        "max_tokens": "${config.agent_max_tokens}",
+        "max_trajectory_length": "${config.agent_max_trajectory_length}",
+        "model_max_retries": "${config.agent_model_max_retries}",
+        "model_retry_backoff_seconds": "${config.agent_model_retry_backoff_seconds}",
+        "model_timeout_seconds": "${config.agent_model_timeout_seconds}",
+        "openai_api_key": "${config.agent_openai_api_key}",
+        "openai_base_url": "${config.agent_openai_base_url}",
+        "planner_model": "${config.agent_planner_model}",
+        "planner_review_interval": "${config.agent_planner_review_interval}",
+        "qwen_api_backend": "${config.agent_qwen_api_backend}",
+        "qwen_enable_thinking": "${config.agent_qwen_enable_thinking}",
+        "qwen_thinking_budget": "${config.agent_qwen_thinking_budget}",
+        "temperature": "${config.agent_temperature}",
+        "top_p": "${config.agent_top_p}",
+        "trajectory_summary_window": "${config.agent_trajectory_summary_window}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+      "agent": "019d7c9b-c13e-72d1-ba0b-5dc4ecd5fb93"
+    }
+  },
+  "experimental_features": [
+    "kvm"
+  ]
+}
