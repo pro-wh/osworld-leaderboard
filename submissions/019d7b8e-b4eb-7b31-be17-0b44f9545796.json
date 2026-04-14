@@ -1,0 +1,96 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_agent_llm": {
+        "type": "string"
+      },
+      "agent_agent_temperature": {
+        "type": "number"
+      },
+      "agent_agent_thinking": {
+        "type": "string"
+      },
+      "agent_dashscope_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_dashscope_base_url": {
+        "type": "string"
+      },
+      "agent_loguru_level": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "agent_dashscope_api_key"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "action_space": "pyautogui",
+          "observation_type": "screenshot",
+          "sleep_after_execution": 0,
+          "max_steps": 15,
+          "test_all_meta_name": "test_nogdrive",
+          "domain": null,
+          "num_shards": 1,
+          "shard_index": 0,
+          "num_workers": 3
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://github.com/RDI-Foundation/osworld-green/raw/refs/heads/main/amber-manifest.json5",
+      "config": {}
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/moimksa/Nathan_purple_agent/main/amber-manifest.json5",
+      "config": {
+        "agent_llm": "${config.agent_agent_llm}",
+        "agent_temperature": "${config.agent_agent_temperature}",
+        "agent_thinking": "${config.agent_agent_thinking}",
+        "dashscope_api_key": "${config.agent_dashscope_api_key}",
+        "dashscope_base_url": "${config.agent_dashscope_base_url}",
+        "loguru_level": "${config.agent_loguru_level}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d1c38-8835-7f40-8d2d-43ac8c66b2ff",
+      "agent": "019d7253-566d-7542-abd4-f78d146ca354"
+    }
+  },
+  "experimental_features": [
+    "kvm"
+  ]
+}
